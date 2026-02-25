@@ -568,6 +568,9 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         `
         }
+        <button class="share-button" data-activity="${name}" aria-label="Share this activity">
+          📤 Share
+        </button>
       </div>
     `;
 
@@ -587,7 +590,109 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Add click handler for share button
+    const shareButton = activityCard.querySelector(".share-button");
+    shareButton.addEventListener("click", () => {
+      shareActivity(name, details);
+    });
+
     activitiesList.appendChild(activityCard);
+  }
+
+  // Share an activity with friends
+  function shareActivity(name, details) {
+    const shareText = `Check out "${name}" at Mergington High School! ${details.description} Schedule: ${formatSchedule(details)}`;
+    const shareUrl = window.location.href;
+
+    // Use native Web Share API if available (works great on mobile)
+    if (navigator.share) {
+      navigator.share({
+        title: `${name} - Mergington High School`,
+        text: shareText,
+        url: shareUrl,
+      }).catch((err) => {
+        // User cancelled or error - do nothing
+        if (err.name !== "AbortError") {
+          console.error("Error sharing:", err);
+        }
+      });
+      return;
+    }
+
+    // Fallback: show a small share popup with social buttons
+    showSharePopup(name, shareText, shareUrl);
+  }
+
+  // Show a share popup for browsers without Web Share API
+  function showSharePopup(name, shareText, shareUrl) {
+    // Remove any existing popup
+    const existing = document.getElementById("share-popup");
+    if (existing) existing.remove();
+
+    const encodedText = encodeURIComponent(shareText);
+    const encodedUrl = encodeURIComponent(shareUrl);
+
+    const popup = document.createElement("div");
+    popup.id = "share-popup";
+    popup.className = "modal";
+    popup.innerHTML = `
+      <div class="modal-content share-modal-content">
+        <span class="close-share-popup" role="button" aria-label="Close">&times;</span>
+        <h3>Share "${name}"</h3>
+        <p class="share-description">Share this activity with friends:</p>
+        <div class="share-buttons">
+          <a class="share-btn share-twitter" href="https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}" target="_blank" rel="noopener noreferrer">
+            𝕏 Twitter
+          </a>
+          <a class="share-btn share-facebook" href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}" target="_blank" rel="noopener noreferrer">
+            Facebook
+          </a>
+          <button class="share-btn share-copy" id="copy-link-btn">
+            📋 Copy Link
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    // Animate in
+    setTimeout(() => popup.classList.add("show"), 10);
+
+    // Close handlers
+    const closePopup = () => {
+      popup.classList.remove("show");
+      setTimeout(() => popup.remove(), 300);
+    };
+
+    popup.querySelector(".close-share-popup").addEventListener("click", closePopup);
+    popup.addEventListener("click", (e) => {
+      if (e.target === popup) closePopup();
+    });
+
+    // Copy link button
+    popup.querySelector("#copy-link-btn").addEventListener("click", () => {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        const btn = popup.querySelector("#copy-link-btn");
+        btn.textContent = "✅ Copied!";
+        setTimeout(() => {
+          btn.textContent = "📋 Copy Link";
+        }, 2000);
+      }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement("textarea");
+        textArea.value = shareUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        const btn = popup.querySelector("#copy-link-btn");
+        btn.textContent = "✅ Copied!";
+        setTimeout(() => {
+          btn.textContent = "📋 Copy Link";
+        }, 2000);
+      });
+    });
   }
 
   // Event listeners for search and filter
