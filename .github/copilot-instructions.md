@@ -1,18 +1,16 @@
-## Development Environment
+### Copilot Instructions
 
-For detailed setup and development instructions, please refer to our [Development Guide](../docs/how-to-develop.md).
+## General
+- Prefer small, focused pull requests and keep changes minimal.
+- Follow existing patterns in the repository and do not introduce new frameworks.
 
-### User Interaction
+## Code style
+- Use clear, descriptive names.
+- Add brief comments only when the intent is not obvious from the code.
 
-Consider the following when communicating with the staff.
+## Testing/quality
+- Update or add tests when changing behavior.
+- Avoid breaking existing workflows under .github/workflows.
 
-- The staff is not technical. Explain in simple terms as much as possible and avoid software jargon.
-- Any new code must be easy to maintain and understand, without significant coding experience.
-
-## Program architecture
-
-- The website users are the students and teachers. Make sure the user experience is simple.
-- Do not make additional apps or services.
-- Do not make command line tools.
-- Do not create a long single file application. Always use an easy-to-understand directory structure.
-- Only use HTML, CSS, Javascript, and Python. No other languages.
+## Output expectations
+- When proposing changes, include the exact file path(s) and the final code to paste.
